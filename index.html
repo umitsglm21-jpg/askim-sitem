@@ -113,6 +113,29 @@
   .btn:focus-visible{outline:3px solid #fff;outline-offset:4px}
   .btn .ico{font-size:17px;line-height:1}
 
+  /* ---------- şifreli kapı ---------- */
+  .kilit{width:min(100%,380px);margin:26px auto 0;display:flex;flex-direction:column;gap:14px}
+  .kilit input{
+    appearance:none;width:100%;box-sizing:border-box;
+    font-family:var(--sans);font-size:17px;text-align:center;color:var(--ink);
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--line);border-radius:999px;
+    padding:16px 22px;outline:none;
+    transition:border-color .2s ease,background .2s ease;
+  }
+  .kilit input::placeholder{color:var(--muted);opacity:.75}
+  .kilit input:focus{border-color:var(--accent);background:rgba(255,255,255,.09)}
+  .kilit-hata{min-height:20px;margin:0;font-size:14px;color:#ff9db4}
+  .kilit .btn{justify-content:center;width:100%}
+  .kilit-titir{animation:titret .4s ease}
+  @keyframes titret{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+
   .ask{
     opacity:0;transform:translateY(12px);
     transition:opacity .6s ease, transform .6s ease;
@@ -277,7 +300,18 @@
       <p class="line">İyi ki varsın, iyi ki benimlesin.</p>
     </div>
 
-    <div class="ask" id="ask">
+    <div class="kilit" id="kilit">
+      <input id="sifreGiris" type="password" autocomplete="off" inputmode="text"
+             placeholder="Buraya sadece ikimizin bildiği kelimeyi yaz"
+             aria-label="Şifre">
+      <button class="btn" id="kilitBtn" type="button">
+        <span>Kapıyı aç</span>
+        <span class="ico" aria-hidden="true">♥</span>
+      </button>
+      <p class="kilit-hata" id="kilitHata" role="alert"></p>
+    </div>
+
+    <div class="ask" id="ask" style="display:none">
       <button class="btn" id="startBtn" type="button">
         <span>Dünyanın en güzel kızını görmek ister misin?</span>
         <span class="ico" aria-hidden="true">♥</span>
@@ -427,8 +461,43 @@
     }, reduced ? 0 : 420);
   }, 4200);
 
-  // soru butonu biraz sonra belirir
-  setTimeout(() => document.getElementById('ask').classList.add('show'), reduced ? 0 : 1700);
+  // soru butonu, şifre doğru girildikten sonra belirir
+  const KILIT_CEVAPLAR = ["elifsglm", "elif"];
+  const kilitEl = document.getElementById('kilit');
+  const sifreGiris = document.getElementById('sifreGiris');
+  const kilitHata = document.getElementById('kilitHata');
+  const askEl = document.getElementById('ask');
+
+  function kilitAc(){
+    try { sessionStorage.setItem('kilit','1'); } catch(e){}
+    kilitEl.style.display = 'none';
+    askEl.style.display = '';
+    setTimeout(() => askEl.classList.add('show'), reduced ? 0 : 400);
+    setTimeout(() => sifreGiris.blur(), 50);
+  }
+
+  function kilitKontrol(){
+    const v = (sifreGiris.value || '').trim().toLowerCase();
+    if (KILIT_CEVAPLAR.includes(v)) {
+      kilitHata.textContent = '';
+      kilitAc();
+    } else {
+      kilitHata.textContent = 'Bu kapı sadece ikimize açık… Bir daha dene.';
+      kilitEl.classList.remove('kilit-titir');
+      void kilitEl.offsetWidth;
+      kilitEl.classList.add('kilit-titir');
+      sifreGiris.select();
+    }
+  }
+
+  document.getElementById('kilitBtn').addEventListener('click', kilitKontrol);
+  sifreGiris.addEventListener('keydown', e => { if (e.key === 'Enter') kilitKontrol(); });
+
+  // aynı sekmede tekrar sormasın
+  try {
+    if (sessionStorage.getItem('kilit') === '1') kilitAc();
+    else setTimeout(() => sifreGiris.focus(), 400);
+  } catch(e){ setTimeout(() => sifreGiris.focus(), 400); }
 
   /* ---------- galeri ---------- */
   const fotoEl = document.getElementById('foto');
