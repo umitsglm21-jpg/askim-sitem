@@ -40,9 +40,9 @@ const FOTOLAR = [
 ];
 
 const VIDEOLAR = [
-  { id:"20261118-0060", soz:"Çizgili kırmızı hâlin… Ne giyersen giy, gözlerim hep yüzünde kalıyor.", etiket:"Çizgiler" },
+  { id:"20261118-0060", soz:"Simsiyah hâlin… Ne giyersen giy, gözlerim hep yüzünde kalıyor.", etiket:"Simsiyah" },
   { id:"20261119-0008", soz:"Kameraya doğru eğildiğin o an, dünyanın en güzel yakın planı.", etiket:"Yakın plan" },
-  { id:"20261119-0009", soz:"O kırmızı kıyafet, o bakış… Sanki bütün oda senin etrafında dönüyor. Ben de dönüyorum.", etiket:"Kırmızı" },
+  { id:"20261119-0009", soz:"O siyah elbise, o bakış… Sanki bütün oda senin etrafında dönüyor. Ben de dönüyorum.", etiket:"Siyah elbise" },
   { id:"20261119-0013", soz:"Saçların dalgalandıkça içimde bir şey de dalgalanıyor.", etiket:"Dalga" },
   { id:"20261119-0015", soz:"Elini yüzüne götürdüğün o an; en sevdiğim an. Dünya bir saniye duruyor.", etiket:"Bir saniye" },
   { id:"20261119-0066", soz:"O bakışı bir kere yakaladım mı, bırakamıyorum. Bu video döngüye girdi bile.", etiket:"Döngü" },
@@ -56,8 +56,8 @@ const VIDEOLAR = [
   { id:"20261120-0020", soz:"Yüzündeki o ifade, benim en sevdiğim film; bu da en sevdiğim sahnesi.", etiket:"Sahne" },
   { id:"20261120-0022", soz:"Bu karede gülüşün var; ben de izleyip kendi kendime gülüyorum. Komik olduğumu biliyorum.", etiket:"Gülüşün" },
   { id:"20261120-0025", soz:"Sana bakarken hep aynı şeyi düşünüyorum: bu yüzü her gün görmek istiyorum.", etiket:"Her gün" },
-  { id:"20261121-0002", soz:"Üzerinde o yazıyla, kendi hâlinde… 'sadece makyaj yapıp gezeceğim' diyorsun; ben de seni izlemek istiyorum.", etiket:"Kendi hâlinde" },
   { id:"20261121-0004", soz:"Sokakta yürürken bile gözlerim seni arıyor; bu videoda buldum, iyi ki.", etiket:"Sokakta" },
+  { id:"20261121-0002", soz:"Üzerinde o yazıyla, kendi hâlinde… 'sadece makyaj yapıp gezeceğim' diyorsun; ben de seni izlemek istiyorum.", etiket:"Kendi hâlinde" },
   { id:"20261121-0005", soz:"Deri ceket, o bakış, o gülüş… Fazla güzel, şikâyetçiyim.", etiket:"Fazla güzel" },
   { id:"20261121-0006", soz:"Bir video karesinde bu kadar huzur olur mu? Oluyormuş; sen varsan oluyormuş.", etiket:"Huzur" },
   { id:"20261121-0010", soz:"Başını çevirdiğin o an, benim en sevdiğim köşe.", etiket:"Köşe" },
