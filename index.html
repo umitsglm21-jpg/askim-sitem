@@ -462,7 +462,8 @@
   }, 4200);
 
   // soru butonu, şifre doğru girildikten sonra belirir
-  const KILIT_CEVAPLAR = ["elifsglm", "elif"];
+  // küçük/büyük harf, Türkçe karakter ve boşluk farkı gözetilmez
+  const KILIT_CEVAPLAR = ["hayat ışığım", "hayat isigim", "hayatışığım", "hayatisigim"];
   const kilitEl = document.getElementById('kilit');
   const sifreGiris = document.getElementById('sifreGiris');
   const kilitHata = document.getElementById('kilitHata');
@@ -477,7 +478,7 @@
   }
 
   function kilitKontrol(){
-    const v = (sifreGiris.value || '').trim().toLowerCase();
+    const v = (sifreGiris.value || '').trim().toLowerCase().replace(/\s+/g,' ');
     if (KILIT_CEVAPLAR.includes(v)) {
       kilitHata.textContent = '';
       kilitAc();
