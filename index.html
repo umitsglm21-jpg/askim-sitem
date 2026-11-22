@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ümitten Biricik Sevgilisine</title>
+<style>
+  :root{
+    --bg:#150a13;
+    --ink:#f9eef2;
+    --muted:#cbb2bd;
+    --accent:#f58aa6;
+    --accent2:#c9557c;
+    --line:rgba(245,138,166,.24);
+    --serif:"Georgia","Times New Roman",serif;
+    --sans:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 700px at 80% -10%, rgba(245,138,166,.18), transparent 60%),
+      radial-gradient(900px 700px at 0% 100%, rgba(150,90,170,.2), transparent 62%),
+      linear-gradient(180deg,#150a13,#20101f 55%,#150a13);
+    color:var(--ink);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  /* ---------- kalp katmanı ---------- */
+  #hearts{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+  .heart{
+    position:absolute;bottom:-50px;
+    color:var(--accent);
+    opacity:0;
+    will-change:transform,opacity;
+    animation:rise linear forwards;
+    text-shadow:0 0 18px rgba(245,138,166,.55);
+  }
+  @keyframes rise{
+    0%{transform:translate3d(0,0,0) scale(.6) rotate(-8deg);opacity:0}
+    10%{opacity:1}
+    80%{opacity:.75}
+    100%{transform:translate3d(var(--drift,0px),-112vh,0) scale(1.15) rotate(14deg);opacity:0}
+  }
+  .pop{
+    position:fixed;pointer-events:none;z-index:61;
+    font-size:26px;color:var(--accent);
+    animation:pop .9s cubic-bezier(.2,.8,.2,1) forwards;
+    will-change:transform,opacity;
+  }
+  @keyframes pop{
+    0%{transform:translate(-50%,-50%) scale(.3);opacity:1}
+    100%{transform:translate(-50%,-190%) scale(1.5);opacity:0}
+  }
+
+  /* ---------- ekranlar ---------- */
+  .screen{
+    position:fixed;inset:0;
+    display:grid;place-items:center;
+    padding:32px 20px;
+    overflow-y:auto;
+    opacity:0;visibility:hidden;
+    transform:scale(.985);
+    transition:opacity .5s ease, transform .5s ease, visibility .5s;
+  }
+  .screen.active{opacity:1;visibility:visible;transform:none}
+  .screen-inner{width:min(100%,660px);text-align:center;margin:auto}
+
+  /* ---------- giriş ---------- */
+  .eyebrow{
+    font-size:11px;letter-spacing:.3em;text-transform:uppercase;
+    color:var(--accent);margin:0 0 22px;
+  }
+  h1{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(2rem,6.4vw,3.6rem);
+    line-height:1.14;letter-spacing:-.01em;
+    margin:0 0 26px;
+  }
+  h1 em{font-style:italic;color:var(--accent)}
+
+  .lines{display:flex;flex-direction:column;gap:14px;margin:0 0 40px}
+  .line{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(1rem,2.6vw,1.22rem);
+    line-height:1.55;
+    color:var(--ink);
+    opacity:0;transform:translateY(10px);
+    animation:lineIn .8s ease forwards;
+  }
+  .line:nth-child(2){animation-delay:.35s}
+  .line:nth-child(3){animation-delay:.7s}
+  .line:nth-child(4){animation-delay:1.05s}
+  @keyframes lineIn{to{opacity:1;transform:none}}
+
+  .btn{
+    appearance:none;cursor:pointer;
+    font-family:var(--sans);font-size:16px;font-weight:600;
+    color:#2b0c16;
+    background:linear-gradient(180deg,#ffb8cc,var(--accent));
+    border:none;border-radius:999px;
+    padding:17px 34px;
+    box-shadow:0 18px 40px -16px rgba(245,138,166,.85);
+    transition:transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    display:inline-flex;align-items:center;gap:10px;
+    max-width:100%;
+  }
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.05)}
+  .btn:active{transform:translateY(0) scale(.985)}
+  .btn:focus-visible{outline:3px solid #fff;outline-offset:4px}
+  .btn .ico{font-size:17px;line-height:1}
+
+  .ask{
+    opacity:0;transform:translateY(12px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .ask.show{opacity:1;transform:none}
+
+  /* ---------- galeri ekranı ---------- */
+  #galeriEkran{place-items:start center}
+  .topbar{
+    width:100%;display:flex;align-items:center;justify-content:space-between;
+    gap:16px;padding:8px 0 18px;
+  }
+  .brand{
+    font-family:var(--serif);font-style:italic;
+    color:var(--accent);font-size:1rem;
+  }
+  .progress-wrap{
+    flex:1;height:4px;border-radius:99px;
+    background:rgba(255,255,255,.09);overflow:hidden;
+  }
+  .progress-bar{height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,var(--accent2),var(--accent));
+    transition:width .45s cubic-bezier(.2,.8,.2,1);
+  }
+  .counter{
+    font-size:12px;letter-spacing:.12em;color:var(--muted);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+
+  .frame{
+    position:relative;width:100%;
+    border-radius:22px;overflow:hidden;
+    background:#1d1020;
+    border:1px solid var(--line);
+    box-shadow:0 40px 90px -46px #000;
+    aspect-ratio:4/5;
+    max-height:60vh;
+  }
+  @media (min-width:760px){.frame{aspect-ratio:3/4;max-height:64vh}}
+  .frame img{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;display:block;
+    opacity:0;transform:scale(1.04);
+    transition:opacity .55s ease, transform 1.2s cubic-bezier(.2,.7,.2,1);
+  }
+  .frame img.on{opacity:1;transform:scale(1)}
+  .frame .rozet{
+    position:absolute;top:14px;left:14px;z-index:2;
+    font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    background:rgba(21,10,19,.72);backdrop-filter:blur(8px);
+    color:var(--accent);border:1px solid var(--line);
+    border-radius:999px;padding:6px 11px;
+  }
+
+  .soz{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(1rem,2.5vw,1.18rem);
+    line-height:1.55;
+    margin:22px auto 24px;
+    max-width:52ch;
+    min-height:3.1em;
+    transition:opacity .3s ease;
+  }
+  .soz.fade{opacity:0}
+
+  .btnler{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;
+  }
+  .btn-next{
+    font-size:15px;padding:15px 26px;
+    animation:glow 3.4s ease-in-out infinite;
+  }
+  @keyframes glow{
+    0%,100%{box-shadow:0 18px 40px -18px rgba(245,138,166,.75)}
+    50%{box-shadow:0 18px 46px -12px rgba(245,138,166,1)}
+  }
+  .hint{
+    margin:20px 0 0;font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);opacity:.75;
+  }
+  .end-note{
+    margin:22px 0 0;font-family:var(--serif);font-style:italic;
+    font-size:1.05rem;color:var(--accent);
+    opacity:0;transition:opacity .5s ease;
+  }
+  .end-note.show{opacity:1}
+
+  /* video kutusu */
+  #video{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:contain;background:#000;
+    z-index:1;opacity:1;
+    display:none;            /* fotoğraf modunda gizli: fotoğrafı örtmesin */
+  }
+  .frame.video-mode img{display:none}
+  .frame.video-mode #video{display:block !important}
+  .frame.video-mode{cursor:default;background:#000}
+
+  /* oynatma düğmesi (video hazır olana kadar) */
+  .play-overlay{
+    position:absolute;inset:0;z-index:3;
+    display:none;place-items:center;gap:0;
+    background:rgba(10,5,10,.35);
+    border:none;cursor:pointer;color:#fff;
+    font-family:var(--sans);
+    transition:opacity .25s ease;
+  }
+  .frame.video-mode .play-overlay{display:grid}
+  .frame.video-mode .play-overlay.hidden{display:none}
+  .play-overlay .tri{
+    width:76px;height:76px;border-radius:50%;
+    display:grid;place-items:center;
+    background:linear-gradient(180deg,#ffb8cc,var(--accent));
+    color:#2b0c16;font-size:26px;padding-left:5px;
+    box-shadow:0 18px 40px -14px rgba(245,138,166,.9);
+    transition:transform .2s ease;
+  }
+  .play-overlay:hover .tri{transform:scale(1.07)}
+  .play-overlay:focus-visible{outline:3px solid #fff;outline-offset:-6px}
+  .play-overlay .play-text{
+    position:absolute;bottom:22px;left:50%;transform:translateX(-50%);
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#f9eef2;text-shadow:0 2px 12px #000;
+  }
+
+  /* söz ekranı */
+  #sozEkran{place-items:center}
+  .soz-baslik{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(1.5rem,4.4vw,2.3rem);
+    line-height:1.2;margin:0 0 28px;
+  }
+  .buyuk-soz{
+    font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.15rem,3.2vw,1.6rem);
+    line-height:1.6;
+    max-width:34ch;margin:0 auto 36px;
+    min-height:4.6em;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .buyuk-soz.fade{opacity:0;transform:translateY(10px)}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+    .line,.ask{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<div id="hearts" aria-hidden="true"></div>
+
+<!-- ============ 1. GİRİŞ ============ -->
+<section class="screen active" id="girisEkran">
+  <div class="screen-inner">
+    <p class="eyebrow">Sana özel, sadece senin için</p>
+    <h1>Hoş geldin <em>Aşkım</em></h1>
+
+    <div class="lines">
+      <p class="line">Bugün de seni düşünerek başladım; dün de öyle bitmişti.</p>
+      <p class="line">Seninle her şey daha güzel, daha kolay, daha sıcak.</p>
+      <p class="line">İyi ki varsın, iyi ki benimlesin.</p>
+    </div>
+
+    <div class="ask" id="ask">
+      <button class="btn" id="startBtn" type="button">
+        <span>Dünyanın en güzel kızını görmek ister misin?</span>
+        <span class="ico" aria-hidden="true">♥</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. GALERİ ============ -->
+<section class="screen" id="galeriEkran">
+  <div class="screen-inner">
+    <div class="topbar">
+      <span class="brand">Ümitten Biricik Sevgilisine</span>
+      <div class="progress-wrap"><div class="progress-bar" id="bar"></div></div>
+      <span class="counter" id="sayac">1 / 33</span>
+    </div>
+
+    <div class="frame" id="frame">
+      <span class="rozet" id="rozet"></span>
+      <img id="foto" alt="">
+      <video id="video" controls playsinline preload="none" webkit-playsinline></video>
+      <button class="play-overlay" id="playOverlay" type="button" aria-label="Videoyu oynat">
+        <span class="tri" aria-hidden="true">▶</span>
+        <span class="play-text">Oynat</span>
+      </button>
+    </div>
+
+    <p class="soz" id="soz" aria-live="polite"></p>
+
+    <div class="btnler">
+      <button class="btn btn-next" id="nextBtn" type="button">
+        <span id="nextText">Seni seviyorum</span>
+        <span class="ico" aria-hidden="true">♥</span>
+      </button>
+    </div>
+
+    <p class="hint" id="hint">Her fotoğrafta yeni bir hayat, yeni bir söz, yeni bir aşk</p>
+  </div>
+</section>
+
+<!-- ============ 3. SANA SÖYLEMEK İSTEDİKLERİM ============ -->
+<section class="screen" id="sozEkran">
+  <div class="screen-inner">
+    <p class="eyebrow">Sana söylemek istediklerim</p>
+    <h2 class="soz-baslik" id="sozBaslik">Dinlemeye hazır mısın?</h2>
+
+    <p class="buyuk-soz" id="buyukSoz" aria-live="polite">
+      Bitti sanma; asıl şimdi başlıyor. Her basışta sana içimden geçeni söyleyeceğim.
+    </p>
+
+    <div class="btnler">
+      <button class="btn btn-next" id="sozBtn" type="button">
+        <span id="sozBtnText">Sana bir şey söyle</span>
+        <span class="ico" aria-hidden="true">♥</span>
+      </button>
+    </div>
+
+    <p class="hint" id="sozSayac">Henüz bir söz istemedin — ve hiç bitmeyecek.</p>
+  </div>
+</section>
+
+<script src="medya.js"></script>
+<script>
+  /* ---------- ayarlar ---------- */
+  const BUTONLAR = [
+    "Seni seviyorum",
+    "Sana aşığım",
+    "İyi ki varsın",
+    "Kalbim senin",
+    "Bir daha söyle",
+    "Seni çok seviyorum",
+    "Aşkım benim",
+    "Hep seni seveceğim",
+    "Sen benim her şeyimsin",
+    "Gülüşüne aşığım"
+  ];
+
+  const GIRIS_SOZLERI = [
+    "Bugün de seni düşünerek başladım; dün de öyle bitmişti.",
+    "Seninle her şey daha güzel, daha kolay, daha sıcak.",
+    "İyi ki varsın, iyi ki benimlesin.",
+    "Kalp atışımın sebebi sensin.",
+    "Sen gülünce dünyanın sesi kısılıyor.",
+    "En sevdiğim yer, senin yanın."
+  ];
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const heartsLayer = document.getElementById('hearts');
+
+  /* ---------- kalpler ---------- */
+  const HEART_GLYPHS = ['♥','❤','💗','💖','💕','❥'];
+
+  function heartRain(n = 1, opts = {}){
+    if (reduced) return;
+    for (let i = 0; i < n; i++){
+      const h = document.createElement('span');
+      h.className = 'heart';
+      h.textContent = HEART_GLYPHS[Math.floor(Math.random()*HEART_GLYPHS.length)];
+      const dur = (opts.fast ? 3.2 : 5.5) + Math.random()*3;
+      h.style.left = (Math.random()*100) + '%';
+      h.style.fontSize = (14 + Math.random()*24) + 'px';
+      h.style.animationDuration = dur + 's';
+      h.style.animationDelay = (Math.random()*(opts.fast ? 0.25 : 0.9)) + 's';
+      h.style.setProperty('--drift', ((Math.random()-0.5)*180) + 'px');
+      heartsLayer.appendChild(h);
+      setTimeout(() => h.remove(), (dur + 1.2) * 1000);
+    }
+  }
+
+  function heartPop(x, y, n = 7){
+    if (reduced) return;
+    for (let i = 0; i < n; i++){
+      const s = document.createElement('span');
+      s.className = 'pop';
+      s.textContent = HEART_GLYPHS[Math.floor(Math.random()*HEART_GLYPHS.length)];
+      s.style.left = (x + (Math.random()-0.5)*90) + 'px';
+      s.style.top  = (y + (Math.random()-0.5)*40) + 'px';
+      s.style.animationDelay = (Math.random()*0.18) + 's';
+      s.style.fontSize = (18 + Math.random()*22) + 'px';
+      document.body.appendChild(s);
+      setTimeout(() => s.remove(), 1300);
+    }
+  }
+
+  heartRain(10);
+
+  /* ---------- ekran geçişi ---------- */
+  const girisEkran = document.getElementById('girisEkran');
+  const galeriEkran = document.getElementById('galeriEkran');
+
+  // giriş sözleri: zamanla sırayla değişir
+  const lineEls = document.querySelectorAll('.line');
+  let girisIndex = 0;
+  lineEls.forEach((el, i) => { el.textContent = GIRIS_SOZLERI[i % GIRIS_SOZLERI.length]; });
+  girisIndex = lineEls.length;
+
+  setInterval(() => {
+    if (!girisEkran.classList.contains('active')) return;
+    const el = lineEls[girisIndex % lineEls.length];
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      el.textContent = GIRIS_SOZLERI[girisIndex % GIRIS_SOZLERI.length];
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      girisIndex++;
+    }, reduced ? 0 : 420);
+  }, 4200);
+
+  // soru butonu biraz sonra belirir
+  setTimeout(() => document.getElementById('ask').classList.add('show'), reduced ? 0 : 1700);
+
+  /* ---------- galeri ---------- */
+  const fotoEl = document.getElementById('foto');
+  const sozEl = document.getElementById('soz');
+  const rozetEl = document.getElementById('rozet');
+  const sayacEl = document.getElementById('sayac');
+  const barEl = document.getElementById('bar');
+  const nextBtn = document.getElementById('nextBtn');
+  const nextText = document.getElementById('nextText');
+  const frameEl = document.getElementById('frame');
+  const videoEl = document.getElementById('video');
+  const hintEl = document.getElementById('hint');
+
+  let index = 0;
+  let butonIndex = -1;
+
+  // tüm medya sırası: önce fotoğraflar, sonra videolar
+  const MEDYA = [
+    ...FOTOLAR.map(o => ({...o, tur:'foto'})),
+    ...VIDEOLAR.map(o => ({...o, tur:'video'}))
+  ];
+  const TOPLAM = MEDYA.length;
+
+  function butonYazisi(){
+    butonIndex = (butonIndex + 1) % BUTONLAR.length;
+    nextText.textContent = BUTONLAR[butonIndex];
+  }
+
+  const playOverlay = document.getElementById('playOverlay');
+
+  function videoDurdur(){
+    if (!videoEl.paused) videoEl.pause();
+    videoEl.removeAttribute('src');
+    videoEl.load();
+    playOverlay.classList.remove('hidden');
+  }
+
+  function videoOynat(){
+    const p = videoEl.play();
+    if (p && p.catch) p.catch(() => {});
+    playOverlay.classList.add('hidden');
+  }
+
+  // video hazır olduğunda kendiliğinden oynatmayı dene; olmazsa düğme kalsın
+  videoEl.addEventListener('loadeddata', () => {
+    videoEl.play().then(() => playOverlay.classList.add('hidden')).catch(() => {});
+  });
+  videoEl.addEventListener('playing', () => playOverlay.classList.add('hidden'));
+  videoEl.addEventListener('pause', () => {
+    if (videoEl.currentTime === 0 || videoEl.ended) playOverlay.classList.remove('hidden');
+  });
+  videoEl.addEventListener('error', () => {
+    playOverlay.classList.remove('hidden');
+    playOverlay.querySelector('.play-text').textContent = 'Video yüklenemedi — tekrar dene';
+  });
+  playOverlay.addEventListener('click', (e) => {
+    e.stopPropagation();
+    videoOynat();
+  });
+
+  function goster(i){
+    const o = MEDYA[i];
+    sozEl.classList.add('fade');
+    fotoEl.classList.remove('on');
+
+    setTimeout(() => {
+      rozetEl.textContent = o.etiket;
+      sozEl.textContent = o.soz;
+
+      if (o.tur === 'foto'){
+        videoDurdur();
+        frameEl.classList.remove('video-mode');
+        fotoEl.src = 'medya/foto/' + o.id + '.jpg';
+        fotoEl.alt = o.etiket;
+        fotoEl.onload = () => fotoEl.classList.add('on');
+        if (fotoEl.complete) fotoEl.classList.add('on');
+      } else {
+        fotoEl.classList.remove('on');
+        frameEl.classList.add('video-mode');
+        videoEl.poster = 'medya/poster/' + o.id + '.jpg';
+        videoEl.preload = 'auto';
+        videoEl.src = 'medya/video/' + o.id + '.mp4';
+        videoEl.load();
+        videoOynat();
+      }
+      sozEl.classList.remove('fade');
+    }, reduced ? 0 : 260);
+
+    const bolum = o.tur === 'foto' ? 'Fotoğraf' : 'Video';
+    sayacEl.textContent = bolum + ' ' + (i + 1) + ' / ' + TOPLAM;
+    barEl.style.width = ((i + 1) / TOPLAM * 100) + '%';
+    hintEl.textContent = o.tur === 'foto'
+      ? 'Her fotoğrafta yeni bir hayat, yeni bir söz, yeni bir aşk'
+      : 'Her videoda yeni bir an, yeni bir söz, yeni bir aşk';
+  }
+
+  document.getElementById('startBtn').addEventListener('click', (e) => {
+    heartRain(22, {fast:true});
+    heartPop(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, 10);
+    girisEkran.classList.remove('active');
+    galeriEkran.classList.add('active');
+    index = 0;
+    butonYazisi();
+    goster(index);
+  });
+
+  nextBtn.addEventListener('click', (e) => {
+    if (index + 1 >= TOPLAM){
+      // fotoğraflar ve videolar bitti → söz ekranı
+      videoDurdur();
+      heartRain(24, {fast:true});
+      heartPop(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, 12);
+      galeriEkran.classList.remove('active');
+      sozEkran.classList.add('active');
+      window.scrollTo(0,0);
+      setTimeout(() => sozBtn.focus(), 350);
+      return;
+    }
+    index++;
+    butonYazisi();
+    goster(index);
+    heartRain(9, {fast:true});
+    heartPop(e.clientX, e.clientY, 8);
+  });
+
+  // boşluk / sağ ok tuşuyla da ilerle
+  document.addEventListener('keydown', (e) => {
+    if (!galeriEkran.classList.contains('active')) return;
+    if (e.target === nextBtn) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      nextBtn.click();
+    }
+  });
+
+  // fotoğrafa dokununca da ilerlesin (videoda oynatıcıya karışma)
+  frameEl.addEventListener('click', (e) => {
+    if (frameEl.classList.contains('video-mode')) return;
+    heartPop(e.clientX, e.clientY, 6);
+    nextBtn.click();
+  });
+
+  /* ================= SANA SÖYLEMEK İSTEDİKLERİM ================= */
+  const sozEkran = document.getElementById('sozEkran');
+  const sozBtn = document.getElementById('sozBtn');
+  const sozBtnText = document.getElementById('sozBtnText');
+  const buyukSoz = document.getElementById('buyukSoz');
+  const sozSayac = document.getElementById('sozSayac');
+  const sozBaslik = document.getElementById('sozBaslik');
+
+  // söz ekranı açılırken kullanılan "ısınma" cümleleri
+  let sozSira = 0;
+  let sozToplam = 0;
+  const sozBaslangic = buyukSoz.textContent;
+
+  sozBtn.addEventListener('click', (e) => {
+    // sırayla git ama aynı söz üst üste gelmesin; havuz bitince başa döner
+    if (sozSira >= SONSZ_SOZLER.length){
+      // karıştır, tekrar etmesin diye
+      SONSZ_SOZLER.sort(() => Math.random() - 0.5);
+      sozSira = 0;
+    }
+    let metin = SONSZ_SOZLER[sozSira];
+    if (buyukSoz.textContent !== sozBaslangic && metin === buyukSoz.textContent && SONSZ_SOZLER.length > 1){
+      sozSira = (sozSira + 1) % SONSZ_SOZLER.length;
+      metin = SONSZ_SOZLER[sozSira];
+    }
+    sozSira++;
+    sozToplam++;
+    sozGoster(metin, e);
+  });
+
+  function sozGoster(metin, e){
+    buyukSoz.classList.add('fade');
+    setTimeout(() => {
+      buyukSoz.textContent = metin;
+      buyukSoz.classList.remove('fade');
+    }, reduced ? 0 : 220);
+    sozBaslik.textContent = "Sana söylemek istediklerim";
+    sozSayac.innerHTML = '<strong>' + sozToplam + '</strong>. söz — ve daha da var.';
+    sozBtnText.textContent = BUTONLAR[Math.floor(Math.random()*BUTONLAR.length)];
+    heartRain(12, {fast:true});
+    heartPop(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, 9);
+  }
+
+  // boşluk / sağ ok ile söz ekranında da ilerle
+  document.addEventListener('keydown', (e) => {
+    if (!sozEkran.classList.contains('active')) return;
+    if (e.target === sozBtn) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      sozBtn.click();
+    }
+  });
+
+</script>
+</body>
+</html>
