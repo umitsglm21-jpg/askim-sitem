@@ -478,8 +478,12 @@
   }
 
   function kilitKontrol(){
-    const v = (sifreGiris.value || '').trim().toLowerCase().replace(/\s+/g,' ');
-    if (KILIT_CEVAPLAR.includes(v)) {
+    const sadeles = t => (t || '').toLowerCase()
+      .replace(/ı/g,'i').replace(/İ/g,'i').replace(/ş/g,'s').replace(/ğ/g,'g')
+      .replace(/ü/g,'u').replace(/ö/g,'o').replace(/ç/g,'c')
+      .replace(/\s+/g,' ').trim();
+    const v = sadeles(sifreGiris.value);
+    if (KILIT_CEVAPLAR.map(sadeles).includes(v)) {
       kilitHata.textContent = '';
       kilitAc();
     } else {
